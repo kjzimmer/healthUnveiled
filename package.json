@@ -1,0 +1,27 @@
+{
+  "name": "health-unveiled-teaser",
+  "version": "0.1.0",
+  "description": "Health Unveiled teaser landing page and Express server",
+  "private": true,
+  "main": "dist/server.js",
+  "engines": { "node": ">=20.12.0" },
+  "scripts": {
+    "dev": "tsx watch --env-file .env src/server.ts",
+    "build": "prisma generate && tsc",
+    "start": "node dist/server.js",
+    "typecheck": "tsc --noEmit",
+    "postinstall": "prisma generate"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.19.3",
+    "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^25.9.3",
+    "dotenv": "^17.4.2",
+    "prisma": "^6.19.3",
+    "tsx": "^4.22.4",
+    "typescript": "^6.0.3"
+  }
+}
