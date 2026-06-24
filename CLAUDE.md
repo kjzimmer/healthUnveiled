@@ -15,18 +15,28 @@ HealthUnveiled.world is a site examining the structural misalignment between mod
 ## Current State
 
 **Live:**
-- Teaser landing page at healthunveiled.world
-- `POST /api/subscribe` — email capture, persists to Person + NewsletterSubscriber (Person-as-hub schema)
+- Teaser landing page at healthunveiled.world (React build — `client/src/teaser/`)
+- Admin SPA at healthunveiled.world/admin (React/Vite, Express catch-all)
+- `POST /api/subscribe` — email capture, Person-as-hub schema
 - `GET /api/health`
-- Rate limiting on `/api/subscribe` (10 req / 15 min / IP)
+- `POST /api/auth/login` / `POST /api/auth/refresh` / `POST /api/auth/logout`
+- `GET|PATCH|DELETE /api/people/:id` (admin)
+- `POST /api/contact` (public) / `GET /api/contact` / `PATCH /api/contact/:id/read` (admin)
+- `GET /api/analytics?range=7|14|30` (admin) — Cloudflare Zone Analytics + local fallback
+- Rate limiting on all public endpoints (10 req / 15 min / IP)
+- Admin UI: Dashboard (analytics) → People → Inbox; left nav per SHARED_ADMIN_MODULES v1.2
 
 **In flight:**
 - *(none)*
 
 **Deferred:**
-- Admin foundation — auth, People CRM, Contact Inbox, Analytics (Phase 4)
-- React/Vite client + teaser page React port (Phase 5)
-- Email service integration — Mailchimp / ConvertKit / Buttondown (undecided; required before first broadcast)
+- Email service integration — undecided provider; required before first broadcast
+- First-run admin setup flow (currently using seed:admin script — see SHARED_ADMIN_MODULES §1 Auth)
+- Site doc updates: `docs/SITE_DESIGN.md`, `docs/TECH_STACK.md`, `docs/ARCHITECTURE.md` need Phase 5 backfill (logged in `shared/SHARED_FEEDBACK.md`; update in Claude.ai)
+
+**Pending cleanup:**
+- `public/js/main.js` — unused since React teaser took over; remove after user confirms teaser visual match against `docs/archive/health-unveiled-teaser.html`
+- Archive `docs/wip/phase4-admin-foundation.md` and `docs/wip/phase5-react-client.md` — both shipped
 
 ---
 
