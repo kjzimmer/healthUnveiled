@@ -1,0 +1,183 @@
+# CLAUDE.md — Health Unveiled
+*Read this file at the start of every session before doing anything else.*
+
+---
+
+## What This Project Is
+
+HealthUnveiled.world is a site examining the structural misalignment between modern medicine's incentive architecture and the goal of creating health. Part of the Future of Abundance ecosystem alongside AbundanceArchitecture.world and FreeMarketWatch.world. The argument is structural: the standard of care is organized around a business model that does not benefit from resolving the conditions generating its customers. Currently transitioning from teaser to full React + admin build.
+
+**GitHub:** https://github.com/kjzimmer/healthUnveiled
+**Production:** https://healthunveiled.world
+
+---
+
+## Current State
+
+**Live:**
+- Teaser landing page at healthunveiled.world
+- `POST /api/subscribe` — email capture, persists to Person + NewsletterSubscriber (Person-as-hub schema)
+- `GET /api/health`
+- Rate limiting on `/api/subscribe` (10 req / 15 min / IP)
+
+**In flight:**
+- *(none)*
+
+**Deferred:**
+- Admin foundation — auth, People CRM, Contact Inbox, Analytics (Phase 4)
+- React/Vite client + teaser page React port (Phase 5)
+- Email service integration — Mailchimp / ConvertKit / Buttondown (undecided; required before first broadcast)
+
+---
+
+## Doc Map
+
+*Read the relevant doc before starting any task in that area. Do not rely on memory.*
+
+| Doc | Read it for |
+|-----|------------|
+| `shared/SHARED_TECH_STACK.md` | Stack decisions, version pins, folder structure, infrastructure |
+| `shared/SHARED_ADMIN_MODULES.md` | Auth, CRM, inbox, analytics — backend contracts |
+| `docs/TECH_STACK.md` | Site-specific packages, deviations from shared stack |
+| `docs/ARCHITECTURE.md` | DB schema, API routes, data flows, folder notes |
+| `docs/SITE_DESIGN.md` | Design system, CSS approach, component conventions |
+| `docs/wip/{feature}.md` | Everything about a feature currently in development |
+
+---
+
+## Critical Gotchas
+
+- **Express 5 wildcards** — use `/admin/*path` not `/admin/*` — bare `*` crashes at startup
+- **Vite base path** — `base: '/admin/'` required in `vite.config.ts` or admin SPA loads blank
+- **Prisma generator** — always `provider = "prisma-client-js"` not `provider = "prisma-client"`
+- **Prisma workflow** — `prisma migrate dev` locally, `prisma migrate deploy` on Railway. Never `prisma db push`
+- **@prisma/client is a root-level dep** — do NOT add it to `server/package.json`. TypeScript and Node.js both resolve it by walking up to root `node_modules/`. See `docs/TECH_STACK.md`.
+- **Railway NODE_ENV** — always set `NODE_ENV=production` explicitly in Railway env vars; do not rely on Railway injecting it silently. See `shared/SHARED_TECH_STACK.md` gotchas.
+
+---
+
+## What Never Changes
+
+- `public/index.html` — the approved teaser design reference. Pixel-perfect spec for the React teaser component. Do **not** modify or restyle it. When the React teaser is confirmed to visually match, **remove** this file — do not modify it.
+- `public/js/main.js` — companion to the HTML teaser; remove alongside `public/index.html` when React takes over.
+
+---
+
+## Standing Rules
+
+*These rules are identical across all sites. Do not modify this section.
+If you identify a problem with these rules, append to `shared/SHARED_FEEDBACK.md`.*
+
+### Session Start Checklist
+
+Before doing anything else at the start of every session:
+
+1. Check `incoming/` — if files are present, notify the user and ask whether to run
+   the transition process before proceeding with other work
+2. Read this file completely
+3. Read the docs relevant to the current task (see Doc Map above)
+4. Check `docs/wip/` for any features in flight that relate to the current task
+
+### What CC Can and Cannot Edit
+
+| Location | Permission |
+|----------|-----------|
+| `## Current State` section of this file | Read + Write |
+| Everything else in this file | Read only |
+| `shared/SHARED_FEEDBACK.md` | Append only |
+| `docs/wip/*.md` | Read + Write |
+| `docs/archive/` | Read + Write |
+| `shared/SHARED_TECH_STACK.md` | Read only |
+| `shared/SHARED_ADMIN_MODULES.md` | Read only |
+| `docs/TECH_STACK.md` | Read only |
+| `docs/ARCHITECTURE.md` | Read only |
+| `docs/SITE_DESIGN.md` | Read only |
+| `docs/CONTENT.md` | Read only |
+| All source files (`server/`, `client/`, `prisma/`) | Read + Write |
+
+If something in a read-only doc is wrong, missing, or needs updating — log it in
+`shared/SHARED_FEEDBACK.md` and proceed with best judgment for the current session.
+Do not edit the doc directly.
+
+### WIP File Discipline
+
+- Every feature in active development gets a file: `docs/wip/{feature-name}.md`
+- Name the file after the feature, not generically (never `temp.md` or `wip.md`)
+- The wip file is the authoritative spec for that feature while it is in flight
+- When the feature ships, notify the user — do not archive the wip file yourself;
+  that is done manually after review in Claude.ai
+- If a wip file exists for the current task, read it before writing any code
+
+### Shared Doc Feedback
+
+When you encounter a gap, conflict, or error in any shared doc:
+
+1. Do not edit the shared doc
+2. Append an entry to `shared/SHARED_FEEDBACK.md` using this format:
+
+```
+## [{date}] {shared doc filename}
+**Site:** {this site's name}
+**Type:** Gap | Conflict | Error | Suggestion
+**Section:** {section heading in the shared doc}
+**Issue:** {clear description of the problem}
+**Suggested fix:** {what you think should change}
+**Workaround used:** {what you did instead for this session}
+```
+
+3. Proceed with your best judgment for the current session
+4. Note what you did in `## Current State`
+
+### Incoming Folder Process
+
+When files are present in `incoming/`:
+
+1. Notify the user at session start: *"There are files in `incoming/` —
+   [{list filenames}]. Do you want to run the transition process before we proceed?"*
+2. If yes: read all files in `incoming/`, then write `incoming/_assessment.md`
+   (see format below) before making any changes to the repo
+3. Wait for user confirmation before proceeding with the transition
+4. After a successful transition: move files to their proper locations, clear
+   `incoming/`, update `## Current State`
+5. If the transition cannot be completed cleanly: log blockers in
+   `shared/SHARED_FEEDBACK.md`, leave `incoming/` in place, notify the user
+
+**`_assessment.md` format:**
+
+```markdown
+# Transition Assessment — {Site Name}
+**Date:** {date}
+**Incoming files:** {list}
+
+## Summary
+{2-3 sentence overall assessment — how far is this site from compliance,
+what is the biggest gap, is anything blocking a clean transition?}
+
+## Gap Analysis
+
+### {Shared doc or standard being assessed}
+**Current state:** {what this site has now}
+**Required state:** {what the standard requires}
+**Gap:** {what needs to change}
+**Complexity:** Low | Medium | High
+**Blocking issues:** {anything that prevents a clean transition — or "None"}
+
+{repeat for each area}
+
+## Transition Plan
+{Ordered list of steps CC proposes to take, with rationale for the order}
+
+## Questions for User
+{Anything CC needs a decision on before proceeding}
+
+## SHARED_FEEDBACK entries
+{Any issues found in the shared docs themselves that need escalation}
+```
+
+### Code Quality Rules
+
+- No `.js` files in `src/` — TypeScript only
+- No `any` types without an explicit comment explaining why
+- Routes call services — no Prisma calls in route files
+- No hardcoded secrets — all sensitive values from environment variables
+- Never commit `.env` — always keep `.env.example` current
