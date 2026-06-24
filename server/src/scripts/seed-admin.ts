@@ -1,5 +1,10 @@
+import dotenv from 'dotenv';
+import path from 'path';
 import bcrypt from 'bcryptjs';
 import { prisma } from '../lib/prisma';
+
+// Load .env from repo root for local dev; no-op in production (Railway already has env vars)
+dotenv.config({ path: path.resolve(__dirname, '..', '..', '..', '.env') });
 
 (async () => {
   const [,, email, password] = process.argv;
