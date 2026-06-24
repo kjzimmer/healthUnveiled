@@ -6,7 +6,7 @@
     "build": "cd server && npm install && npm run build",
     "start": "cd server && npm run start",
     "dev": "cd server && npm run dev",
-    "seed:admin": "cd server && npx tsx src/scripts/seed-admin.ts",
+    "seed:admin": "cd server && npx tsx --env-file ../.env src/scripts/seed-admin.ts",
     "postinstall": "prisma generate"
   },
   "dependencies": {
