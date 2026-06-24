@@ -26,6 +26,11 @@ app.use('/api/people', requireAdmin, peopleRouter);
 app.use('/api/contact', contactRouter);
 app.use('/api/analytics', requireAdmin, analyticsRouter);
 
+// Admin SPA catch-all — must come after all API routes
+app.get(['/admin', '/admin/*path'], (_req, res) => {
+  res.sendFile(path.join(__dirname, '..', '..', 'public', 'admin', 'index.html'));
+});
+
 app.listen(PORT, () => {
   console.log(`[server] running on port ${PORT}`);
 });

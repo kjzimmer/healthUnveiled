@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "cd server && npm install && npm run build",
+    "build": "cd client && npm install && npm run build && cd ../server && npm install && npm run build",
     "start": "cd server && npm run start",
     "dev": "cd server && npm run dev",
     "seed:admin": "cd server && npx tsx src/scripts/seed-admin.ts",
