@@ -1,37 +1,32 @@
-# CLAUDE.md — Health Unveiled
+# CLAUDE.md — {Site Name}
 *Read this file at the start of every session before doing anything else.*
 
 ---
 
 ## What This Project Is
 
-HealthUnveiled.world is a site examining the structural misalignment between modern medicine's incentive architecture and the goal of creating health. Part of the Future of Abundance ecosystem alongside AbundanceArchitecture.world and FreeMarketWatch.world. The argument is structural: the standard of care is organized around a business model that does not benefit from resolving the conditions generating its customers. Full React + admin build is live.
+{2-4 sentences. What the site does, who it serves, where it lives in production.
+What phase it is in — teaser, admin foundation, full build, etc.}
 
-**GitHub:** https://github.com/kjzimmer/healthUnveiled
-**Production:** https://healthunveiled.world
+**GitHub:** {repo URL}
+**Production:** {domain or Railway temp URL}
 
 ---
 
 ## Current State
 
+{CC maintains this section. Update it as features ship, are started, or are deferred.
+Keep it current — this is what the next session reads to orient itself.}
+
 **Live:**
-- Teaser landing page at healthunveiled.world (React build — `client/src/teaser/`)
-- Admin SPA at healthunveiled.world/admin (React/Vite, Express catch-all)
-- `POST /api/subscribe` — email capture, Person-as-hub schema
-- `GET /api/health`
-- `POST /api/auth/login` / `POST /api/auth/refresh` / `POST /api/auth/logout`
-- `GET|PATCH|DELETE /api/people/:id` (admin)
-- `POST /api/contact` (public) / `GET /api/contact` / `PATCH /api/contact/:id/read` (admin)
-- `GET /api/analytics?range=7|14|30` (admin) — Cloudflare Zone Analytics + local fallback
-- Rate limiting on all public endpoints (10 req / 15 min / IP)
-- Admin UI: Dashboard (analytics) → People → Inbox; left nav per SHARED_ADMIN_MODULES v1.2
+- {feature or page}
+- {feature or page}
 
 **In flight:**
-- *(none)*
+- {feature — link to docs/wip/{feature}.md}
 
 **Deferred:**
-- Email service integration — undecided provider; required before first broadcast
-- First-run admin setup flow (currently using seed:admin script — see SHARED_ADMIN_MODULES §1 Auth)
+- {feature — brief note on why}
 
 ---
 
@@ -46,25 +41,31 @@ HealthUnveiled.world is a site examining the structural misalignment between mod
 | `docs/TECH_STACK.md` | Site-specific packages, deviations from shared stack |
 | `docs/ARCHITECTURE.md` | DB schema, API routes, data flows, folder notes |
 | `docs/SITE_DESIGN.md` | Design system, CSS approach, component conventions |
+| `docs/CONTENT.md` | Page/route inventory, copy status (if this file exists) |
 | `docs/wip/{feature}.md` | Everything about a feature currently in development |
 
 ---
 
 ## Critical Gotchas
 
-- **Express 5 wildcards** — use `/admin/*path` not `/admin/*` — bare `*` crashes at startup
-- **Vite base path** — `base: '/admin/'` required in `vite.config.ts` or admin SPA loads blank
+{Site-specific things that will burn a session if CC doesn't know them.
+Common candidates below — keep only what applies, add what's missing.}
+
+- **Express 5 wildcards** — use `/admin/*path` not `/admin/*` — bare * crashes at startup
+- **Vite base path** — `base: '/admin/'` required in vite.config.ts or admin SPA loads blank
 - **Prisma generator** — always `provider = "prisma-client-js"` not `provider = "prisma-client"`
 - **Prisma workflow** — `prisma migrate dev` locally, `prisma migrate deploy` on Railway. Never `prisma db push`
-- **@prisma/client is a root-level dep** — do NOT add it to `server/package.json`. TypeScript and Node.js both resolve it by walking up to root `node_modules/`. See `docs/TECH_STACK.md`.
-- **Railway NODE_ENV** — always set `NODE_ENV=production` explicitly in Railway env vars; do not rely on Railway injecting it silently. See `shared/SHARED_TECH_STACK.md` gotchas.
+- {site-specific gotcha}
+- {site-specific gotcha}
 
 ---
 
 ## What Never Changes
 
-- Teaser page copy (`client/src/teaser/TeaserApp.tsx`) — the argument, headlines, and body text are user decisions only. Do not reword or restructure copy without explicit instruction.
-- `docs/archive/health-unveiled-teaser.html` — original static teaser; keep as reference.
+{Things CC must never touch regardless of instructions in the session.}
+
+- `public/index.html` — approved design, do not restyle or restructure
+- {other locked files or sections}
 
 ---
 
@@ -101,9 +102,9 @@ Before doing anything else at the start of every session:
 | `shared/SHARED_ADMIN_MODULES.md` | Read only |
 | All source files (`server/`, `client/`, `prisma/`) | Read + Write |
 
-If something in a read-only shared doc is wrong, missing, or needs updating — log it in
+If something in a read-only doc is wrong, missing, or needs updating — log it in
 `shared/SHARED_FEEDBACK.md` and proceed with best judgment for the current session.
-Do not edit the shared doc directly.
+Do not edit the doc directly.
 
 ### WIP File Discipline
 
@@ -138,7 +139,7 @@ When you encounter a gap, conflict, or error in any shared doc:
 
 When files are present in `incoming/`:
 
-1. Notify the user at session start: *"There are files in `incoming/` —
+1. Notify the user at session start: *"There are files in incoming/ —
    [{list filenames}]. Do you want to run the transition process before we proceed?"*
 2. If yes: read all files in `incoming/`, then write `incoming/_assessment.md`
    (see format below) before making any changes to the repo

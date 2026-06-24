@@ -1,5 +1,5 @@
 # Shared Admin Modules
-**Version:** 1.1
+**Version:** 1.2
 **Updated:** June 2026
 **Applies to:** All sites — Future of Abundance suite + client/retail web projects
 **Canonical location:** `abundanceArchitecture/shared/`
@@ -12,6 +12,7 @@ If CC identifies a problem or gap, append to `shared/SHARED_FEEDBACK.md` — nev
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.2 | June 2026 | Admin UI layout section added; CF_ACCOUNT_ID marked optional; CF_ANALYTICS_TOKEN and CF_ZONE_ID clarified as the only required analytics vars |
 | 1.1 | June 2026 | Added health-unveiled to source site string list |
 | 1.0 | June 2026 | Initial canonical version — consolidates AA, FMW, MDFA admin patterns |
 
@@ -24,13 +25,14 @@ backend contract — prescriptive about data models, API routes, auth pattern, a
 layer structure. Frontend implementation is intentionally non-prescriptive: each site
 implements admin UI in whatever CSS framework it uses.
 
-The five modules are:
+The six modules are:
 
 1. **Auth** — hardened JWT with refresh tokens; first-run admin setup
 2. **People CRM** — unified contact record for every person who interacts with the site
 3. **Contact / Inquiries Inbox** — unified inbox for all inbound messages
 4. **Analytics** — Cloudflare Zone Analytics + Web Analytics (RUM)
 5. **Rate Limiting** — applied to all public-facing endpoints
+6. **Admin UI Layout** — consistent left-nav structure across all sites
 
 Set up in this order. Auth is a prerequisite for everything else.
 
@@ -590,12 +592,14 @@ required for Zone Analytics.
 ### Environment Variables
 
 ```env
-CF_ANALYTICS_TOKEN=           # Cloudflare API token
+CF_ANALYTICS_TOKEN=           # Cloudflare API token — required for Zone Analytics
                               # Dashboard → My Profile → API Tokens
                               # Use "Read analytics for a zone" template
                               # Scope to specific zone (one token per domain)
-CF_ZONE_ID=                   # Cloudflare dashboard → domain overview → right sidebar
-CF_ACCOUNT_ID=                # Same location as Zone ID
+CF_ZONE_ID=                   # Cloudflare zone ID — required for Zone Analytics
+                              # Cloudflare dashboard → domain overview → right sidebar
+CF_ACCOUNT_ID=                # Cloudflare account ID — not currently used by analytics
+                              # route; document here for completeness only
 CF_WEB_ANALYTICS_SITE_TAG=    # Cloudflare Web Analytics site tag
                               # Dashboard → Web Analytics → your site → Advanced Options
                               # Requires Cloudflare Pro plan
@@ -732,15 +736,107 @@ JWT_SECRET=                          # 64-byte random hex string
 # Optional — contact notification
 NOTIFICATION_EMAIL_ENDPOINT=         # Fire-and-forget POST on contact submission
 
-# Optional — Cloudflare analytics
+# Optional — Cloudflare analytics (CF_ANALYTICS_TOKEN + CF_ZONE_ID required for Zone Analytics)
 CF_ANALYTICS_TOKEN=                  # Zone Analytics API token
 CF_ZONE_ID=                          # Cloudflare zone ID
-CF_ACCOUNT_ID=                       # Cloudflare account ID
+CF_ACCOUNT_ID=                       # Not currently used — documented for completeness
 CF_WEB_ANALYTICS_SITE_TAG=           # Web Analytics site tag (Pro plan required)
 
 # Transitional — remove when first-run flow is implemented
 ADMIN_EMAIL=                         # Used by seed-admin script only
 ```
+
+---
+
+## 6. Admin UI Layout
+
+The admin panel uses a consistent layout across all sites. CC must follow this structure
+regardless of which CSS framework the site uses. Consistency matters because the same
+person administers all sites — zero relearning when switching between them.
+
+### Overall Structure
+
+Two-column layout: fixed left navigation + scrollable main content area.
+
+```
+┌─────────────────┬────────────────────────────────────┐
+│                 │                                    │
+│   Left Nav      │   Main Content Area                │
+│   (240px)       │                                    │
+│                 │   Page Title          [Actions]    │
+│   Site Name     │   ─────────────────────────────    │
+│   ─────────     │                                    │
+│   Dashboard     │   {module content}                 │
+│   People        │                                    │
+│   Inbox         │                                    │
+│   {site-       │                                    │
+│    specific}    │                                    │
+│                 │                                    │
+│   ─────────     │                                    │
+│   Logout        │                                    │
+└─────────────────┴────────────────────────────────────┘
+```
+
+### Left Navigation
+
+- **Width:** 240px fixed
+- **Site name/logo** at top — links to public site in a new tab
+- **Module links** in standard order (see below) — full-width, active state clearly indicated
+- **Logout button** pinned to bottom of nav
+- Nav is always visible — no collapsing on desktop
+- Mobile behavior: per-site decision; document in `docs/SITE_DESIGN.md`
+
+### Standard Module Order
+
+Every site implements modules in this order in the nav. Site-specific modules
+are inserted after Inbox:
+
+1. Dashboard (analytics overview)
+2. People
+3. Inbox
+4. {site-specific modules — e.g. Commissions, Market Data, Events}
+5. Settings (if implemented)
+
+### Main Content Area
+
+- **Page title** — top left of content area, matches nav item name
+- **Action buttons** — top right of content area (e.g. "Copy subscriber emails", "Mark all read")
+- **Content** below the title/action row
+
+### Module Layout Patterns
+
+**Table modules (People, Inbox):**
+- Full-width table or card list
+- Most recent first (default sort)
+- Unread / active state: visual indicator on the row (bold, accent color, or dot)
+- Row click or expand: reveals detail — either inline expand or right-side detail panel
+- Empty state: clear message, never a blank table
+
+**Analytics (Dashboard):**
+- Range selector (7d / 14d / 30d) at top right
+- Six cards in a responsive grid (3×2 on desktop, 2×3 on tablet, 1×6 on mobile)
+- Line chart below cards: Unique Visitors + Page Views over selected range
+- Country breakdown below chart: proportional bars, top 8 countries
+
+**Detail views (People detail, message expand):**
+- Edit form for editable fields (name, phone, notes, tags)
+- Read-only history of related records (messages sent, subscription status)
+- Destructive actions (delete) require confirmation — either a modal or inline confirm step
+
+### What Varies Per Site
+
+- Color scheme — admin palette does not need to match the public site
+- Typography — per site's design system
+- CSS framework — Tailwind, CSS-in-JS, plain CSS: per `docs/SITE_DESIGN.md`
+- Site-specific module sections beyond the standard five
+
+### What Never Varies
+
+- Left nav, 240px, with site name at top and logout at bottom
+- Standard module order in nav
+- Page title top left, actions top right
+- No mock data — empty states use messaging, not placeholder content
+- Confirmation required for all destructive actions
 
 ---
 

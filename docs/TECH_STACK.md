@@ -14,7 +14,7 @@
 
 **How it works:**
 - Root `postinstall` runs `prisma generate`, outputting to root `node_modules/@prisma/client`
-- Root `build` script: `cd server && npm install && npm run build` (no separate `prisma generate` needed)
+- Root `build` script: `cd client && npm install && npm run build && cd ../server && npm install && npm run build`
 - TypeScript in `server/` finds `@prisma/client` by walking up: `server/node_modules/` → root `node_modules/` ✓
 - Node.js at runtime does the same walk ✓
 
@@ -26,6 +26,10 @@
 
 Local development runs Node 20.12.2. Prisma 6 is pinned because Prisma 7+ requires Node ≥20.19. Railway runs Node 24 (no constraint there). Upgrade local Node before moving to Prisma 7.
 
+### All Client Packages in `dependencies` (not `devDependencies`)
+
+Railway sets `NODE_ENV=production` at build time, which causes `npm install` to skip `devDependencies`. All packages required for the Vite build must be in `dependencies` in `client/package.json`.
+
 ---
 
 ## Site-Specific Packages
@@ -34,17 +38,51 @@ Local development runs Node 20.12.2. Prisma 6 is pinned because Prisma 7+ requir
 
 | Package | Version | Purpose |
 |---------|---------|---------|
-| `express-rate-limit` | ^7.5.0 | Rate limiting on public endpoints |
+| `express` | ^5 | HTTP server |
+| `bcryptjs` | ^3 | Password hashing (bcrypt cost 12 for seed, 10 for refresh tokens) |
+| `jsonwebtoken` | ^9 | JWT signing and verification |
+| `cookie-parser` | ^1.4 | HttpOnly refresh token cookie parsing |
+| `express-rate-limit` | ^7.5 | Rate limiting on public endpoints |
 
 ### Client
 
-*(No client packages yet — React/Vite client is Phase 5.)*
+| Package | Version | Purpose |
+|---------|---------|---------|
+| `react` | ^18.3.1 | UI framework |
+| `react-dom` | ^18.3.1 | DOM renderer |
+| `react-router-dom` | ^7.6.2 | SPA routing (`basename="/admin"` for admin SPA) |
+| `recharts` | ^2.15.3 | Analytics line chart (responsive container) |
+| `vite` | ^6.3.5 | Build tool |
+| `@vitejs/plugin-react` | ^4.5.2 | Vite React plugin |
+| `typescript` | ^6.0.3 | Type checking |
+| `@types/react` | ^18.3.23 | React types |
+| `@types/react-dom` | ^18.3.7 | React DOM types |
+
+---
+
+## Vite Build Configuration
+
+Two separate Vite configs in `client/`:
+
+| Config | Base | Root | OutDir | Purpose |
+|--------|------|------|--------|---------|
+| `vite.config.ts` | `/admin/` | default | `../public/admin` | Admin SPA |
+| `vite.teaser.config.ts` | `/` | `src/teaser/` | `../public` | Teaser landing page |
+
+`build:admin` and `build:teaser` run sequentially via `npm run build` in the client package. The teaser build uses `emptyOutDir: false` to avoid wiping the admin build output from `public/`.
+
+**Critical:** `base: '/admin/'` is required in `vite.config.ts`. Without it, built asset paths resolve from `/` instead of `/admin/` and the admin SPA loads blank.
 
 ---
 
 ## CSS Approach
 
-**Undecided.** Decision documented here when the React client build begins (Phase 5). See `docs/SITE_DESIGN.md`.
+**Plain CSS with CSS custom properties.** No external framework.
+
+- `client/src/teaser/teaser.css` — teaser page styles; canonical source for the design token palette
+- `client/src/admin.css` — admin SPA styles; same token palette, separate stylesheet
+
+Admin layout uses a fixed-sidebar shell per `shared/SHARED_ADMIN_MODULES.md` §6: `.admin-shell` (flex row) → `.sidebar` (220px, `--sidebar-bg: #1a1917`) + `.main-content` (flex 1, scrollable). No Tailwind, no CSS Modules.
 
 ---
 
