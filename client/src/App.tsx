@@ -21,7 +21,7 @@ export default function App() {
           path="/"
           element={<PrivateRoute><Layout /></PrivateRoute>}
         >
-          <Route index element={<Navigate to="/people" replace />} />
+          <Route index element={<Navigate to="/analytics" replace />} />
           <Route path="people" element={<PeoplePage />} />
           <Route path="contact" element={<ContactPage />} />
           <Route path="analytics" element={<AnalyticsPage />} />

@@ -42,7 +42,7 @@ export default function AnalyticsPage() {
   return (
     <div className="analytics-wrap">
       <div className="page-header" style={{ padding: '0 0 1.5rem' }}>
-        <h1 className="page-title">Analytics</h1>
+        <h1 className="page-title">Dashboard</h1>
         <p className="page-subtitle">Cloudflare Zone Analytics</p>
       </div>
 
@@ -87,6 +87,14 @@ export default function AnalyticsPage() {
                 <div className="stat-value">{fmt(data.totals.requests)}</div>
                 <div className="stat-source">{fmtBytes(data.totals.bandwidthBytes)} transferred</div>
               </div>
+              {['Device Types', 'Top Pages', 'Top Referrers'].map(label => (
+                <div key={label} className="pro-card">
+                  <div className="pro-card-label">{label}</div>
+                  <div className="pro-card-notice">
+                    Requires Cloudflare Pro plan + Web Analytics setup (CF_WEB_ANALYTICS_SITE_TAG).
+                  </div>
+                </div>
+              ))}
             </div>
 
             <div className="chart-card">
@@ -104,36 +112,23 @@ export default function AnalyticsPage() {
               </ResponsiveContainer>
             </div>
 
-            <div className="two-col">
-              {data.countries.length > 0 && (
-                <div className="chart-card" style={{ marginBottom: 0 }}>
-                  <div className="chart-title">Top Countries</div>
-                  {(() => {
-                    const max = data.countries[0]?.requests ?? 1;
-                    return data.countries.map(c => (
-                      <div key={c.name} className="country-row">
-                        <span className="country-name">{c.name}</span>
-                        <div className="country-bar-wrap">
-                          <div className="country-bar" style={{ width: `${(c.requests / max) * 100}%` }} />
-                        </div>
-                        <span className="country-count">{fmt(c.requests)}</span>
+            {data.countries.length > 0 && (
+              <div className="chart-card" style={{ marginBottom: 0 }}>
+                <div className="chart-title">Top Countries</div>
+                {(() => {
+                  const max = data.countries[0]?.requests ?? 1;
+                  return data.countries.map(c => (
+                    <div key={c.name} className="country-row">
+                      <span className="country-name">{c.name}</span>
+                      <div className="country-bar-wrap">
+                        <div className="country-bar" style={{ width: `${(c.requests / max) * 100}%` }} />
                       </div>
-                    ));
-                  })()}
-                </div>
-              )}
-            </div>
-
-            <div className="pro-grid">
-              {['Device Types', 'Top Pages', 'Top Referrers'].map(label => (
-                <div key={label} className="pro-card">
-                  <div className="pro-card-label">{label}</div>
-                  <div className="pro-card-notice">
-                    Requires Cloudflare Pro plan + Web Analytics setup (CF_WEB_ANALYTICS_SITE_TAG).
-                  </div>
-                </div>
-              ))}
-            </div>
+                      <span className="country-count">{fmt(c.requests)}</span>
+                    </div>
+                  ));
+                })()}
+              </div>
+            )}
           </>
         )
       }

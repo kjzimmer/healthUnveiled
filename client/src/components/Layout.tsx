@@ -14,18 +14,20 @@ export default function Layout() {
     <div className="admin-shell">
       <aside className="sidebar">
         <div className="sidebar-brand">
-          <strong>Health Unveiled</strong>
-          Admin
+          <a href="https://healthunveiled.world" target="_blank" rel="noopener noreferrer" className="sidebar-brand-link">
+            <strong>Health Unveiled</strong>
+            Admin
+          </a>
         </div>
         <nav className="sidebar-nav">
+          <NavLink to="/analytics" className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>
+            Dashboard
+          </NavLink>
           <NavLink to="/people" className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>
             People
           </NavLink>
           <NavLink to="/contact" className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>
             Inbox
-          </NavLink>
-          <NavLink to="/analytics" className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>
-            Analytics
           </NavLink>
         </nav>
         <div className="sidebar-footer">
